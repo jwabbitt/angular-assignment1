@@ -1,0 +1,29 @@
+.R {
+  background-color: #ffe9e9; !important
+}
+
+.D {
+  background-color: #e9e9ff; !important
+}
+
+.list-group-item a {
+  color: inherit;
+}
+
+.list-group-item a:hover {
+  text-decoration: none;
+  color: rgba(0,0,0,.5);
+}
+
+fieldset {
+  margin-bottom: 10px;
+  border: solid black 1px;
+  border-radius: 3px;
+  padding: 1px 5px 5px;
+}
+
+legend {
+  width: auto;
+  padding: 0px 5px 0px;
+  border: none;
+}
