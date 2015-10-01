@@ -21,65 +21,27 @@
 
     <div ng-controller="MainCtrl as main" class="container">
 
-      <fieldset>
-        <legend>Zip Code</legend>
-        <form ng-submit="main.searchByZip(main.inputs.zip)" class="form-inline form-group">
+      <div class="radio">
+        <label>
+          <input type="radio" ng-model="main.congressType"  value="sens" />
+          Senators
+        </label>
+      </div>
 
-          <div class="form-group">
-            <label for="zipcode">All by Zip Code:</label>
-            <input id="zipcode" class="form-control" type="string" ng-model="main.inputs.zip" placeholder="84097"/>
-          </div>
+      <div class="radio">
+        <label>
+          <input type="radio" ng-model="main.congressType"  value="reps" />
+          Represenatives
+        </label>
+      </div>
 
-          <button class="btn btn-info" type="submit">Submit</button>
-        </form>
-      </fieldset>
-      <!--Search Senators -->
-      <fieldset>
-        <legend>Senators</legend>
-        <form ng-submit="main.searchSensByName(main.inputs.senName)" class="form-inline form-group">
+      <form class="form-inline form-group" ng-submit="main.criteria.method(main.input)">
+        <select ng-change="main.input = ''" class="form-control" ng-model="main.criteria" ng-options="item as item.label for item in main.apis"></select>
+        <input autofocus class="form-control" type="text" ng-model="main.input" ng-disabled="main.loading"/>
+        <button class="btn btn-info" type="submit" ng-disabled="main.loading || !main.input">Submit</button>
+      </form>
 
-          <div class="form-group">
-            <label for="repName">Senators by Last Name:</label>
-            <input id="repName" class="form-control" type="string" ng-model="main.inputs.senName" placeholder="Nelson"/>
-          </div>
 
-          <button class="btn btn-info" type="submit">Submit</button>
-        </form>
-
-        <form ng-submit="main.searchSensByState(main.inputs.senState)" class="form-inline form-group">
-
-          <div class="form-group">
-            <label for="repState">Senators by State:</label>
-            <input id="repState" class="form-control" type="string" ng-model="main.inputs.senState" placeholder="CA"/>
-          </div>
-
-          <button class="btn btn-info" type="submit">Submit</button>
-        </form>
-      </fieldset>
-
-      <!--Search Representatives -->
-      <fieldset>
-        <legend>Representatives</legend>
-        <form ng-submit="main.searchRepsByName(main.inputs.repName)" class="form-inline form-group">
-
-          <div class="form-group">
-            <label for="repName">Representatives by Last Name:</label>
-            <input id="repName" class="form-control" type="string" ng-model="main.inputs.repName" placeholder="Smith"/>
-          </div>
-
-          <button class="btn btn-info" type="submit">Submit</button>
-        </form>
-
-        <form ng-submit="main.searchRepsByState(main.inputs.repState)" class="form-inline form-group">
-
-          <div class="form-group">
-            <label for="repState">Representatives by State:</label>
-            <input id="repState" class="form-control" type="string" ng-model="main.inputs.repState" placeholder="UT"/>
-          </div>
-
-          <button class="btn btn-info" type="submit">Submit</button>
-        </form>
-      </fieldset>
       <div>
         <span>List Key: </span>
         <span class="form-inline R">Republican</span>
@@ -87,7 +49,14 @@
       </div>
 
         <ul class="list-group">
-          <li class="list-group-item {{rep.party}}" ng-repeat="rep in main.reps">
+          <li class="list-group-item" ng-show="main.loading">
+            Loading...
+          </li>
+          <li class="list-group-item" ng-show="main.reps.length === 0 && main.searchOnce && !main.loading && !  main.input == ''">
+            <p>No Results for '{{main.input}}'</p>
+            <p>Rephrase your search criteria and try again.</p>
+          </li>
+          <li ng-hide="main.loading" class="list-group-item {{rep.party}}" ng-repeat="rep in main.reps">
             <h4 class="list-group-item-heading"><a href="{{rep.link}}">{{rep.name}} ({{rep.type}})</a></h4>
             <p>State: {{rep.state}}</p>
             <p>District: {{rep.district}}</p>

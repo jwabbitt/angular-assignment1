@@ -10,78 +10,75 @@ angular
   .controller('MainCtrl', function (reps) {
     var main = this;
     main.reps = [];
+    main.congressType = 'sens';
 
-    main.searchByZip = function (zip) {
-      reps.allByZip(zip).then(function (data) {
-        main.reps = data;
-      });
-    };
-    //Search Senators
-    main.searchSensByName = function (senName) {
-      reps.sensByName(senName).then(function (data) {
-        main.reps = data;
-      });
-    };
+    main.loading = false;
+    main.searchOnce = false;
 
-    main.searchSensByState = function (senState) {
-      reps.sensByState(senState).then(function (data) {
-        main.reps = data;
-      });
-    };
+    main.apis = [
+      {
+        label: 'Zip',
+        method: function(zip) {
+          main.loading = true;
+          main.searchOnce = true;
+          reps('all', 'zip', zip).then(function(data) {
+            main.loading = false;
+            main.reps = data;
+          });
+        }
+      },
+      {
+        label: 'Last Name',
+        method: function (name) {
+          main.loading = true;
+          main.searchOnce = true;
+          reps(main.congressType, 'name', name).then(function(data) {
+            main.loading = false;
+            main.reps = data;
+          });
+        }
+      },
+      {
+        label: 'State',
+        method: function (state) {
+          main.loading = true;
+          main.searchOnce = true;
+          reps(main.congressType, 'state', state).then(function(data) {
+            main.loading = false;
+            main.reps = data;
+          });
+        }
+      }
+    ];
 
-    //Search Representatives
-    main.searchRepsByName = function (repName) {
-      reps.repsByName(repName).then(function (data) {
-        main.reps = data;
-      });
-    };
+    main.criteria = main.apis[0];
 
-    main.searchRepsByState = function (repState) {
-      reps.repsByState(repState).then(function (data) {
-        main.reps = data;
-      });
-    };
   });
 
 angular
   .module('repsService', [])
   .factory('reps', function ($http) {
     var host = 'http://dgm-representatives.herokuapp.com';
-    return {
-      allByZip: function (zip) {
-        return $http
-          .get(host + '/all/by-zip/' + zip)
-          .then(function(response) {
-            return response.data;
-          });
-      },
-      sensByName: function (senName) {
-        return $http
-          .get(host + '/sens/by-name/' + senName)
-          .then(function (response) {
-            return response.data;
-          });
-      },
-      sensByState: function (senState) {
-        return $http
-          .get(host + '/sens/by-state/' + senState)
-          .then(function (response) {
-            return response.data;
-          });
-      },
-      repsByName: function (repName) {
-        return $http
-          .get(host + '/reps/by-name/' + repName)
-          .then(function (response) {
-            return response.data;
-          });
-      },
-      repsByState: function (repState) {
-        return $http
-          .get(host + '/reps/by-state/' + repState)
-          .then(function (response) {
-            return response.data;
-          });
-      }
-    };
+
+    /**
+    * @function search
+    * @param {String} type - can be "all", "reps", "sens"
+    * @param {String} criteria - can be by "zip", "name", "state"
+    * @param {String} query - can any string
+    */
+    function search(type, criteria, query) {
+      return $http
+        .get(host + '/' + type + '/by-' + criteria + '/' + query)
+        .then(function (response) {
+          return response.data;
+        });
+    }
+
+    // search.allByZip = search.bind(null, 'all', 'zip');
+    // search.sensByName = search.bind(null, 'sens', 'name');
+    // search.sensByState = search.bind(null,'sens', 'state');
+    // search.repsByName = search.bind(null, 'reps', 'name');
+    // search.repsByState = search.bind(null, 'reps', 'state');
+
+    return search;
   });
